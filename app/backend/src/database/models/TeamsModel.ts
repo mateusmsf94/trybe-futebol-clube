@@ -1,5 +1,5 @@
 import { INTEGER, STRING, Model } from 'sequelize';
-import sequelize from '.';
+import db from '.';
 
 class Team extends Model {
   declare id: number;
@@ -13,15 +13,16 @@ Team.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    name: {
+    teamName: {
       type: STRING,
       allowNull: false,
     },
   },
   {
     underscored: true,
-    sequelize,
+    sequelize: db,
     tableName: 'teams',
+    timestamps: false,
   },
 );
 
