@@ -5,7 +5,7 @@ import Team from '../database/models/TeamsModel';
 
 const routerTeam = Router();
 const teamService = new TeamService(Team);
-const teamController = new TeamController(teamService);
+export const teamController = new TeamController(teamService);
 
 routerTeam.get('/', teamController.getAll);
 routerTeam.get('/:id', teamController.getById);
