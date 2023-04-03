@@ -1,5 +1,5 @@
 import { INTEGER, STRING, Model } from 'sequelize';
-import sequelize from '.';
+import db from '.';
 
 class User extends Model {
   declare id: number;
@@ -37,8 +37,9 @@ User.init(
   },
   {
     underscored: true,
-    sequelize,
+    sequelize: db,
     tableName: 'users',
+    timestamps: false,
   },
 );
 
