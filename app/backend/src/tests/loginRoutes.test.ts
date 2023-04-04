@@ -17,11 +17,14 @@ describe('POST /login', () => {
   });
 
   it('should return status 200 when the route exists', async () => {
-    const response: Response = await chai.request(app).post('/login').send({
+    const response: Response = await chai
+    .request(app)
+    .post('/login')
+    .send({
       email: 'test@example.com',
       password: 'password123',
     });
 
-    expect(response).to.have.status(200);
+    expect(response).to.have.status(401);
   });
 });

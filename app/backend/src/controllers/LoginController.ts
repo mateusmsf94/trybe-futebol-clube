@@ -15,4 +15,10 @@ export default class LoginController {
       next(error);
     }
   };
+
+  public role = async (req: Request, res: Response): Promise<void> => {
+    const user = req.body.data;
+    const { data: { role } } = user;
+    res.status(200).json({ role });
+  };
 }
