@@ -1,6 +1,7 @@
 import * as express from 'express';
 import routerTeam from './routes/teamRoutes';
 import loginRoutes from './routes/loginRoutes';
+import MatchRouter from './routes/matchesRoute';
 
 class App {
   public app: express.Express;
@@ -11,6 +12,7 @@ class App {
     this.config();
     this.app.use('/teams', routerTeam);
     this.app.use('/login', loginRoutes);
+    this.app.use('/matches', MatchRouter);
 
     // Não remover essa rota
     this.app.get('/', (req, res) => res.json({ ok: true }));
