@@ -1,6 +1,7 @@
 import { ModelStatic } from 'sequelize';
 import Teams from '../database/models/TeamsModel';
 import Matches from '../database/models/MatchesModel';
+import CustomError from '../utils/CustomErros';
 
 export default class MatchesService {
   private _matchModel: ModelStatic<Matches>;
@@ -63,15 +64,31 @@ export default class MatchesService {
     );
   };
 
+  private async validateNewMatch(newMatch: {
+    homeTeamId: number;
+    awayTeamId: number;
+  }): Promise<void> {
+    if (newMatch.homeTeamId === newMatch.awayTeamId) {
+      throw new CustomError(422, 'It is not possible to create a match with two equal teams');
+    }
+
+    const [homeTeam, awayTeam] = await Promise.all([
+      this._teamModel.findByPk(newMatch.homeTeamId),
+      this._teamModel.findByPk(newMatch.awayTeamId),
+    ]);
+
+    if (!homeTeam || !awayTeam) {
+      throw new CustomError(404, 'There is no team with such id!');
+    }
+  }
+
   public addNewMatch = async (newMatch: {
     homeTeamId: number;
     awayTeamId: number;
     date: Date;
   }): Promise<Matches> => {
-    const match = await this._matchModel.create({
-      ...newMatch,
-      inProgress: true,
-    });
+    await this.validateNewMatch(newMatch);
+    const match = await this._matchModel.create({ ...newMatch, inProgress: true });
     return match;
   };
 }

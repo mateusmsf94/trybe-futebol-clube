@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import MatchesService from '../services/MatchesService';
+import CustomError from '../utils/CustomErros';
 
 export default class MatchesController {
   private _matchesService: MatchesService;
@@ -39,12 +40,13 @@ export default class MatchesController {
     res: Response,
   ): Promise<void> => {
     try {
-      const matchData = req.body;
-      const match = await this._matchesService.addNewMatch(matchData);
-      res.status(201).json(match);
+      const newMatch = req.body;
+      const result = await this._matchesService.addNewMatch(newMatch);
+      res.status(201).json(result);
     } catch (error) {
       const err = error as Error;
-      res.status(500).json({ message: err });
+      const statusCode = (error as CustomError).statusCode || 500;
+      res.status(statusCode).json({ message: err.message });
     }
   };
 }
