@@ -6,11 +6,21 @@ import {app} from '../app';
 import MatchesService from '../services/MatchesService';
 import Matches from '../database/models/MatchesModel';
 import Teams from '../database/models/TeamsModel';
+import { createToken } from '../auth/authFunction';
 
 chai.use(chaiHttp);
 
 describe('Matches Tests', () => {
   const matchesService = new MatchesService(Matches, Teams);
+  const validUser = {email: 'admin@admin.com', password: 'secret_admin'};
+  let testToken:string
+  beforeEach(async() => {
+    const {body} = await chai
+      .request(app)
+      .post('/login')
+      .send(validUser)
+    testToken = body
+  })
 
   it('Get all matches', async () => {
     const res = await chai.request(app).get('/matches');
@@ -26,7 +36,7 @@ describe('Matches Tests', () => {
       awayTeamGoals: 0,
     };
 
-    const res = await chai.request(app).post('/matches').send(match);
+    const res = await chai.request(app).post('/matches').set('Authorization', testToken).send(match);
     expect(res.status).to.equal(201);
     expect(res.body.homeTeamId).to.equal(match.homeTeamId);
     expect(res.body.awayTeamId).to.equal(match.awayTeamId);
@@ -89,5 +99,29 @@ describe('Matches Tests', () => {
     expect(inProgressRes.status).to.equal(200);
     expect(inProgressRes.body).to.be.an('array');
     
+  });
+
+  it('Create a match with equal teams', async () => {
+    const match = {
+      homeTeamId: 1,
+      awayTeamId: 1,
+      date: new Date(),
+    };
+
+    const res = await chai.request(app).post('/matches').send(match);
+    expect(res.status).to.equal(422);
+    expect(res.body.message).to.equal('It is not possible to create a match with two equal teams');
+  });
+
+  it('Create a match with non-existent team', async () => {
+    const match = {
+      homeTeamId: 1,
+      awayTeamId: 99999, // Non-existent team
+      date: new Date(),
+    };
+
+    const res = await chai.request(app).post('/matches').send(match);
+    expect(res.status).to.equal(404);
+    expect(res.body.message).to.equal('There is no team with such id!');
   });
 });
